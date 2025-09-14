@@ -7,6 +7,7 @@ class_name AdventureSonic extends Node
 @export_group("Movement Settings")
 @export_subgroup("Walking")
 @export var walk_acc: float
+var finished_anim = false
 @export var walk_dcc: float
 @export var walk_frc: float
 @export var air_acc: float
@@ -175,3 +176,7 @@ func walk_turnrt(acc:float, dcc:float, top_speed:float, turn_rate:float, min_spe
 		player.velocity = player.basis * (local_vel[0] + local_vel[1])
 		
 		
+
+
+func _on_animated_sprite_3d_animation_finished() -> void:
+	finished_anim = true

@@ -21,4 +21,3 @@ static func node3d_separate_speed(transform: Node3D, velocity: Vector3) -> Packe
 	returnArr.append(ver_vel);
 	return returnArr;
 	
-

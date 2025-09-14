@@ -13,7 +13,7 @@ var animation = ""
 @export_group("Components")
 @export var camera: Node3D
 @export var _shape: CollisionShape3D
-
+var anim = 0
 @export_group("Movement")
 ## Current ground friction
 @export var ground_frc: float = 6
@@ -227,10 +227,6 @@ func _normal_collision_checks():
 			control_lock-=delta_time
 	else:
 		_keep_rota_frames+=1
-		if(_keep_rota_frames<5):
-			quaternion = Quaternion(Vector3.UP, old_floor_nor);
-		else:
-			quaternion = Quaternion(Vector3.UP, avr_floor_nor);
 
 
 func _do_slopes() -> void:
@@ -239,7 +235,7 @@ func _do_slopes() -> void:
 		#print("is sloping! %s " % (slope_factor * (abs(sin((-gravity_dir).angle_to(avr_floor_nor) )))))
 		velocity+= slope_dir * (slope_factor * (abs(sin((-gravity_dir).angle_to(avr_floor_nor) )))) * delta_time
 	
-	if(velocity.length() < min_slip_speed && control_lock <= 0 && slope_factor < _cmin_slip_angle):
+	if(Vector3(velocity.x,0,velocity.z).length() < min_slip_speed && control_lock <= 0 && slope_factor < _cmin_slip_angle):
 		grounded = false
 		col_floor_count = 0
 		control_lock = control_lock_time
@@ -290,23 +286,41 @@ func _physics_process(delta):
 	delta_time = delta
 	space_state = get_world_3d().direct_space_state;
 	var p_fwd = -camera.global_transform.basis.z
-	var fwd = global_transform.basis.z
-	var left = global_transform.basis.x
+	var fwd = -$Visuals.global_transform.basis.x
+	var left = -$Visuals.global_transform.basis.z
 	var l_dot = left.dot(p_fwd)
 	var f_dot = fwd.dot(p_fwd)
+	print(abs(global_rotation.x))
+	$Visuals.global_rotation.x = 0
+	$Visuals.global_rotation.z = 0
+	
+	if(Input.get_vector("move_l","move_r","move_d","move_u")!=Vector2.ZERO):
+		$Visuals.global_rotation.y = atan2(-Input.get_vector("move_l","move_r","move_d","move_u").y, Input.get_vector("move_l","move_r","move_d","move_u").x)
 	
 	if f_dot < -0.85:
-		direction = "F"
+		if(abs(global_rotation.x)>0.90):
+			direction = "B"
+		else:
+			direction = "F"
 	elif f_dot > 0.85:
-		direction = "B"
+		if(abs(global_rotation.x)>0.90):
+			direction = "F"
+		else:
+			direction = "B"
 	else:
-		$Visuals/AnimatedSprite3D.flip_h = l_dot > 0
+		$AnimatedSprite3D.flip_h = l_dot > 0
 		if abs(f_dot) < 0.3:
 			direction = "S"
-		elif f_dot < 8:
-			direction = "NE"
+		elif f_dot < 0:
+			if(abs(global_rotation.x)>0.90):
+				direction = "NE"
+			else:
+				direction = "NS"
 		else:
-			direction = "NS"
+			if(abs(global_rotation.x)>0.90):
+				direction = "NS"
+			else:
+				direction = "NE"
 	
 	before_col.emit()
 	
@@ -320,20 +334,22 @@ func _physics_process(delta):
 	skip_next_col = false
 	print(round(velocity.length()))
 	before_phys.emit()
-	if(grounded):
-		if(round(velocity.length()) == 0):
-			animation = "Idle"
-		else:
-			if(round(velocity.length()) > 15):
-				animation = "Run Fast"
-			elif(round(velocity.length()) > 5):
-				animation = "Run"
+	print($AdventureSonic.state_mac.curr_state)
+	if($AdventureSonic.state_mac.curr_state.get_name() == "Walk"):
+		if(grounded):
+			if(round(velocity.length()) == 0):
+				animation = "Idle"
 			else:
-				animation = "Walk"
-	else:
-		animation = "Jump"
+				if(round(velocity.length()) > 15):
+					animation = "Run Fast"
+				elif(round(velocity.length()) > 5):
+					animation = "Run"
+				else:
+					animation = "Walk"
+		else:
+			animation = "Jump"
 	_normal_physics()
-	$Visuals/AnimatedSprite3D.play(animation + direction)
+	$AnimatedSprite3D.play(animation + direction)
 	after_phys.emit()
 	
 	_reset_col()
