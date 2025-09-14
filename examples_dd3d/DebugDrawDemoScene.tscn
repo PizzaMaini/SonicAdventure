@@ -1,6 +1,6 @@
 [gd_scene load_steps=16 format=3 uid="uid://c3sccy6x0ht5j"]
 
-[ext_resource type="Script" path="res://examples_dd3d/DebugDrawDemoScene.gd" id="1"]
+[ext_resource type="Script" uid="uid://wvx1d7glv6h0" path="res://examples_dd3d/DebugDrawDemoScene.gd" id="1"]
 [ext_resource type="FontFile" uid="uid://erdgllynwqkw" path="res://examples_dd3d/Roboto-Bold.ttf" id="2_aedbq"]
 
 [sub_resource type="Animation" id="9"]
@@ -85,8 +85,8 @@ tracks/2/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_nj4nv"]
 _data = {
-"New Anim": SubResource("9"),
-"RESET": SubResource("10")
+&"New Anim": SubResource("9"),
+&"RESET": SubResource("10")
 }
 
 [sub_resource type="SphereShape3D" id="4"]
@@ -136,8 +136,8 @@ tracks/1/keys = PackedFloat32Array(0, 1, 0, 0, 0, 1)
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_vh8ml"]
 _data = {
-"New Anim": SubResource("6"),
-"RESET": SubResource("7")
+&"New Anim": SubResource("6"),
+&"RESET": SubResource("7")
 }
 
 [sub_resource type="StandardMaterial3D" id="1"]
@@ -162,7 +162,7 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_a7f1a"]
 _data = {
-"RESET": SubResource("8")
+&"RESET": SubResource("8")
 }
 
 [sub_resource type="Theme" id="3"]

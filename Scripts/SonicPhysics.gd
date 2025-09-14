@@ -8,7 +8,8 @@ class_name SonicPhysics
 extends CharacterBody3D
 
 enum {GROUND_METHOD_RAY, GROUND_METHOD_FROMBALL, GROUND_METHOD_BALL}
-
+var direction = "F"
+var animation = ""
 @export_group("Components")
 @export var camera: Node3D
 @export var _shape: CollisionShape3D
@@ -288,6 +289,24 @@ func _ready():
 func _physics_process(delta):
 	delta_time = delta
 	space_state = get_world_3d().direct_space_state;
+	var p_fwd = -camera.global_transform.basis.z
+	var fwd = global_transform.basis.z
+	var left = global_transform.basis.x
+	var l_dot = left.dot(p_fwd)
+	var f_dot = fwd.dot(p_fwd)
+	
+	if f_dot < -0.85:
+		direction = "F"
+	elif f_dot > 0.85:
+		direction = "B"
+	else:
+		$Visuals/AnimatedSprite3D.flip_h = l_dot > 0
+		if abs(f_dot) < 0.3:
+			direction = "S"
+		elif f_dot < 8:
+			direction = "NE"
+		else:
+			direction = "NS"
 	
 	before_col.emit()
 	
@@ -299,11 +318,22 @@ func _physics_process(delta):
 	_normal_collision_checks()
 	
 	skip_next_col = false
-	
+	print(round(velocity.length()))
 	before_phys.emit()
-	
+	if(grounded):
+		if(round(velocity.length()) == 0):
+			animation = "Idle"
+		else:
+			if(round(velocity.length()) > 15):
+				animation = "Run Fast"
+			elif(round(velocity.length()) > 5):
+				animation = "Run"
+			else:
+				animation = "Walk"
+	else:
+		animation = "Jump"
 	_normal_physics()
-	
+	$Visuals/AnimatedSprite3D.play(animation + direction)
 	after_phys.emit()
 	
 	_reset_col()
@@ -323,5 +353,3 @@ func _physics_process(delta):
 	# var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 
 	
-
-
